@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ながさマスター cm・mm ワーク</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero" aria-labelledby="app-title">
+        <div>
+          <p class="eyebrow">2年生の長さワーク</p>
+          <h1 id="app-title">ながさマスター<br />cm・mm</h1>
+          <p class="lead">
+            ものさしの目盛りを見ながら、1cm = 10mm のきまりを使って、
+            センチメートルとミリメートルの長さを楽しく練習しよう。
+          </p>
+        </div>
+        <div class="hero-card" aria-label="学習のポイント">
+          <span class="hero-card__label">たいせつなきまり</span>
+          <strong>1cm = 10mm</strong>
+          <small>小さい目盛り10こで1cm</small>
+        </div>
+      </section>
+
+      <section class="guide-panel panel" aria-labelledby="guide-title">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Ruler Guide</p>
+            <h2 id="guide-title">ものさしガイド</h2>
+          </div>
+          <p class="unit-tip">数字のある大きな目盛りが cm、間の小さな目盛りが mm だよ。</p>
+        </div>
+        <div id="guide-ruler" class="ruler guide-ruler" aria-label="0cmから10cmまでのものさし"></div>
+        <div class="guide-notes">
+          <span>0cm</span>
+          <span>5mm は 1cm の半分</span>
+          <span>10mm = 1cm</span>
+        </div>
+      </section>
+
+      <div class="layout-grid">
+        <section class="panel work-panel" aria-labelledby="problem-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Challenge</p>
+              <h2 id="problem-title">もんだい</h2>
+            </div>
+            <button id="new-problem-button" class="ghost-button" type="button">もんだいをかえる</button>
+          </div>
+
+          <div class="mode-tabs" role="group" aria-label="問題の種類を選ぶ">
+            <button class="mode-tab active" type="button" data-mode="ruler">目盛りを読む</button>
+            <button class="mode-tab" type="button" data-mode="cm-to-mm">cm → mm</button>
+            <button class="mode-tab" type="button" data-mode="mm-to-cm">mm → cm</button>
+          </div>
+
+          <article class="question-card" aria-live="polite">
+            <p id="question-type" class="question-type">目盛りを読む</p>
+            <h3 id="question-text">赤いしるしは何cm何mmかな？</h3>
+            <div id="problem-ruler" class="ruler problem-ruler" aria-label="問題用のものさし"></div>
+            <div id="conversion-visual" class="conversion-visual" hidden></div>
+            <p id="hint-text" class="hint-text">大きな目盛りをcm、そこから小さい目盛りをmmで数えよう。</p>
+          </article>
+
+          <form id="answer-form" class="answer-form">
+            <fieldset id="ruler-answer-fields" class="answer-fields two-columns">
+              <legend>こたえ</legend>
+              <label>
+                <span>cm</span>
+                <input id="cm-input" type="number" min="0" max="10" inputmode="numeric" />
+              </label>
+              <label>
+                <span>mm</span>
+                <input id="mm-input" type="number" min="0" max="9" inputmode="numeric" />
+              </label>
+            </fieldset>
+
+            <fieldset id="single-answer-fields" class="answer-fields" hidden>
+              <legend id="single-answer-label">こたえ</legend>
+              <label>
+                <span id="single-unit-label">mm</span>
+                <input id="single-input" type="number" min="0" max="100" inputmode="numeric" />
+              </label>
+            </fieldset>
+
+            <div class="answer-actions">
+              <button class="primary-button" type="submit">こたえる</button>
+              <button id="show-answer-button" class="ghost-button" type="button">ヒントをふやす</button>
+            </div>
+          </form>
+          <p id="feedback" class="feedback">まずは、ものさしの赤いしるしを読んでみよう。</p>
+        </section>
+
+        <aside class="panel score-panel" aria-labelledby="score-title">
+          <p class="eyebrow">Score</p>
+          <h2 id="score-title">できた数</h2>
+          <div class="score-card">
+            <strong id="correct-count">0</strong>
+            <span>もん正かい</span>
+          </div>
+          <div class="progress-track" aria-label="10問までの進み具合">
+            <div id="progress-bar" class="progress-bar"></div>
+          </div>
+          <p id="remaining-message">あと10もんで、ながさスター！</p>
+          <button id="reset-score-button" class="danger-button full" type="button">スコアをリセット</button>
+        </aside>
+      </div>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

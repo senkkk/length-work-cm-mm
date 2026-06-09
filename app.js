@@ -12,12 +12,26 @@ const modes = {
     label: 'mm → cm',
     hint: '10mmで1cm。10のまとまりをcmにして、あまりをmmで書こう。',
   },
+  'measure-real': {
+    label: 'じっさいにはかる',
+    hint: '画面の目盛りではなく、本物のものさしを使って、0にそろえてはかろう。',
+  },
 };
+
+const measureMissions = [
+  { item: 'けしゴム', icon: '▭', tip: 'いちばん長いところを、0の目盛りにぴったり合わせよう。' },
+  { item: 'えんぴつ', icon: '✏️', tip: 'はしからはしまでをまっすぐはかろう。' },
+  { item: 'ノートの短い辺', icon: '📓', tip: '角から角まで、ものさしをななめにしないように置こう。' },
+  { item: 'スプーン', icon: '🥄', tip: '持つところの先から反対の先までをはかろう。' },
+  { item: 'カード', icon: '💳', tip: '横の長さと縦の長さのどちらをはかったか、あとで声に出して言おう。' },
+  { item: '手のひらの横はば', icon: '✋', tip: '手をひろげすぎず、親指のつけ根あたりの横はばをはかろう。' },
+];
 
 const els = {
   guideRuler: document.querySelector('#guide-ruler'),
   problemRuler: document.querySelector('#problem-ruler'),
   conversionVisual: document.querySelector('#conversion-visual'),
+  measureCard: document.querySelector('#measure-card'),
   questionType: document.querySelector('#question-type'),
   questionText: document.querySelector('#question-text'),
   hintText: document.querySelector('#hint-text'),
@@ -84,6 +98,14 @@ function renderRuler(container, highlightValue = null) {
 }
 
 function createProblem(mode) {
+  if (mode === 'measure-real') {
+    const mission = measureMissions[randomInt(0, measureMissions.length - 1)];
+    return {
+      mode,
+      ...mission,
+    };
+  }
+
   if (mode === 'ruler') {
     const totalMm = randomInt(7, 98);
     return {
@@ -106,6 +128,18 @@ function createProblem(mode) {
     cm: Math.floor(totalMm / 10),
     mm: totalMm % 10,
   };
+}
+
+function renderMeasureCard(problem) {
+  els.measureCard.hidden = false;
+  els.measureCard.innerHTML = `
+    <div class="measure-card__icon" aria-hidden="true">${problem.icon}</div>
+    <div>
+      <p class="measure-card__label">はかるもの</p>
+      <strong>${problem.item}</strong>
+      <span>${problem.tip}</span>
+    </div>
+  `;
 }
 
 function renderConversionVisual(problem) {
@@ -140,13 +174,29 @@ function renderProblem() {
   els.singleInput.value = '';
   els.conversionVisual.hidden = true;
   els.conversionVisual.innerHTML = '';
+  els.measureCard.hidden = true;
+  els.measureCard.innerHTML = '';
 
   if (problem.mode === 'ruler') {
+    els.cmInput.max = '10';
+    els.mmInput.max = '9';
     els.questionText.textContent = '赤いしるしは何cm何mmかな？ mmだけで表すと何mmかな？';
     els.rulerAnswerFields.hidden = false;
     els.singleAnswerFields.hidden = true;
     renderRuler(els.problemRuler, problem.totalMm);
     els.problemRuler.hidden = false;
+    els.cmInput.focus();
+    return;
+  }
+
+  if (problem.mode === 'measure-real') {
+    els.cmInput.max = '99';
+    els.mmInput.max = '9';
+    els.questionText.textContent = `${problem.item}を本物のものさしではかって、何cm何mmかを書こう。`;
+    els.rulerAnswerFields.hidden = false;
+    els.singleAnswerFields.hidden = true;
+    els.problemRuler.hidden = true;
+    renderMeasureCard(problem);
     els.cmInput.focus();
     return;
   }
@@ -160,15 +210,19 @@ function renderProblem() {
     els.singleInput.min = '0';
     els.singleInput.max = '100';
     renderRuler(els.problemRuler, problem.totalMm);
+    els.problemRuler.hidden = false;
     renderConversionVisual(problem);
     els.singleInput.focus();
     return;
   }
 
+  els.cmInput.max = '10';
+  els.mmInput.max = '9';
   els.questionText.textContent = `${problem.totalMm}mm は何cm何mmかな？`;
   els.rulerAnswerFields.hidden = false;
   els.singleAnswerFields.hidden = true;
   renderRuler(els.problemRuler, problem.totalMm);
+  els.problemRuler.hidden = false;
   renderConversionVisual(problem);
   els.cmInput.focus();
 }
@@ -198,6 +252,12 @@ function updateScore() {
 
 function checkAnswer() {
   const problem = state.problem;
+  if (problem.mode === 'measure-real') {
+    const cm = Number(els.cmInput.value);
+    const mm = Number(els.mmInput.value);
+    return Number.isInteger(cm) && Number.isInteger(mm) && cm >= 0 && cm <= 99 && mm >= 0 && mm <= 9 && cm + mm > 0;
+  }
+
   if (problem.mode === 'cm-to-mm') {
     return Number(els.singleInput.value) === problem.totalMm;
   }
@@ -205,6 +265,9 @@ function checkAnswer() {
 }
 
 function answerText(problem) {
+  if (problem.mode === 'measure-real') {
+    return `${Number(els.cmInput.value)}cm ${Number(els.mmInput.value)}mm`;
+  }
   if (problem.mode === 'cm-to-mm') return `${problem.totalMm}mm`;
   return `${problem.cm}cm ${problem.mm}mm（mmだけなら${problem.totalMm}mm）`;
 }
@@ -214,13 +277,17 @@ function handleAnswer(event) {
   if (checkAnswer()) {
     state.correct += 1;
     updateScore();
-    els.feedback.textContent = `正かい！ ${answerText(state.problem)} だね。つぎのもんだいへいこう。`;
+    els.feedback.textContent = state.problem.mode === 'measure-real'
+      ? `きろくできたよ！ ${state.problem.item} は ${answerText(state.problem)}。家の人や友だちと同じ長さになったかくらべてみよう。`
+      : `正かい！ ${answerText(state.problem)} だね。つぎのもんだいへいこう。`;
     els.feedback.className = 'feedback success';
-    window.setTimeout(nextProblem, 850);
+    window.setTimeout(nextProblem, state.problem.mode === 'measure-real' ? 1800 : 850);
     return;
   }
 
-  els.feedback.textContent = 'もう一度見てみよう。10mmで1cmになることを思い出してね。';
+  els.feedback.textContent = state.problem.mode === 'measure-real'
+    ? 'cmは0以上、mmは0から9までで書こう。mmが10になったら1cmにくり上げてね。'
+    : 'もう一度見てみよう。10mmで1cmになることを思い出してね。';
   els.feedback.className = 'feedback error';
 }
 
@@ -228,12 +295,18 @@ function showMoreHint() {
   state.hintLevel += 1;
   const problem = state.problem;
   if (state.hintLevel === 1) {
+    if (problem.mode === 'measure-real') {
+      els.hintText.textContent = 'もののはしを0に合わせて、最後にこえた大きな目盛りをcm、その先の小さな目盛りをmmで数えよう。';
+      return;
+    }
     els.hintText.textContent = problem.mode === 'cm-to-mm'
       ? `${problem.cm}cm は 10mm のまとまりが ${problem.cm}こあるよ。`
       : `${problem.totalMm}mm は、10mmのまとまりを先に数えるよ。`;
     return;
   }
-  els.hintText.textContent = `こたえは ${answerText(problem)}。目盛りとくらべてたしかめよう。`;
+  els.hintText.textContent = problem.mode === 'measure-real'
+    ? '同じものをもう一度はかって、1回目と同じ数字になるかたしかめよう。'
+    : `こたえは ${answerText(problem)}。目盛りとくらべてたしかめよう。`;
 }
 
 els.answerForm.addEventListener('submit', handleAnswer);

@@ -54,6 +54,7 @@
             <button class="mode-tab active" type="button" data-mode="ruler">目盛りを読む</button>
             <button class="mode-tab" type="button" data-mode="cm-to-mm">cm → mm</button>
             <button class="mode-tab" type="button" data-mode="mm-to-cm">mm → cm</button>
+            <button class="mode-tab" type="button" data-mode="measure-real">じっさいにはかる</button>
           </div>
 
           <article class="question-card" aria-live="polite">
@@ -61,6 +62,7 @@
             <h3 id="question-text">赤いしるしは何cm何mmかな？</h3>
             <div id="problem-ruler" class="ruler problem-ruler" aria-label="問題用のものさし"></div>
             <div id="conversion-visual" class="conversion-visual" hidden></div>
+            <div id="measure-card" class="measure-card" hidden></div>
             <p id="hint-text" class="hint-text">大きな目盛りをcm、そこから小さい目盛りをmmで数えよう。</p>
           </article>
 
